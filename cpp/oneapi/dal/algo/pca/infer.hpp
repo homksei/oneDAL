@@ -1,6 +1,5 @@
-/* file: daal_defines_sycl.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,21 +14,15 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Common definitions.
-//--
-*/
+#pragma once
 
-#ifndef __DAAL_DEFINES_SYCL_H__
-#define __DAAL_DEFINES_SYCL_H__
+#include "oneapi/dal/algo/pca/detail/infer_ops.hpp"
+#include "oneapi/dal/algo/pca/infer_types.hpp"
+#include "oneapi/dal/infer.hpp"
 
-/** \file daal_defines_sycl.h */
+namespace oneapi::dal::detail {
 
-#include "services/daal_defines.h"
+template <typename Descriptor>
+struct infer_ops<Descriptor, dal::pca::detail::tag> : dal::pca::detail::infer_ops<Descriptor> {};
 
-#define DAAL_ASSERT_UNIVERSAL_BUFFER(buffer, bufferType, bufferSize) \
-    DAAL_ASSERT(buffer.type() == TypeIds<bufferType>::id());         \
-    DAAL_ASSERT(buffer.template get<bufferType>().size() == bufferSize);
-
-#endif
+} // namespace oneapi::dal::detail
