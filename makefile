@@ -207,7 +207,7 @@ frompf1 = $(shell echo $1 | sed 's/111/\\ /g' | sed 's/222/(/g' | sed 's/333/)/g
 #============================= TBB folders =====================================
 TBBDIR := $(if $(wildcard $(DIR)/__deps/tbb/$(_OS)/*),$(DIR)/__deps/tbb/$(_OS)$(if $(OS_is_win),/tbb))
 TBBDIR.2 := $(if $(TBBDIR),$(TBBDIR),$(call topf,$$TBBROOT))
-TBBDIR.2 := $(if $(TBBDIR.2),$(TBBDIR.2),$(error Can`t find TBB neither in $(DIR)/__deps/tbb nor in $$TBBROOT))
+TBBDIR.2 := $(if $(TBBDIR.2),$(TBBDIR.2),$(error Can`t find TBB neither in $(DIR)/__deps/tbb not in $$TBBROOT))
 
 TBBDIR.include := $(if $(TBBDIR),$(TBBDIR)/include/tbb $(TBBDIR)/include)
 
@@ -244,8 +244,8 @@ TBBDIR.soia := $(TBBDIR.soia.$(_OS))
 RELEASEDIR.tbb       := $(RELEASEDIR)/tbb/latest
 RELEASEDIR.tbb.libia := $(RELEASEDIR.tbb)/lib$(if $(OS_is_mac),,/$(_IA)$(if $(OS_is_win),/vc_mt,/$(TBBDIR.libia.lnx.gcc)))
 RELEASEDIR.tbb.soia  := $(if $(OS_is_win),$(RELEASEDIR.tbb)/redist/$(_IA)/vc_mt,$(RELEASEDIR.tbb.libia))
-releasetbb.LIBS_A := $(if $(OS_is_win),$(TBBDIR.libia)/tbb.$(a) $(TBBDIR.libia)/tbbmalloc.$(a))
-releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb.$(y) $(TBBDIR.soia)/$(plib)tbbmalloc.$(y)                                                           \
+releasetbb.LIBS_A := $(if $(OS_is_win),$(TBBDIR.libia)/tbb12.$(a) $(TBBDIR.libia)/tbbmalloc.$(a))
+releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb$(if $(OS_is_win),12,).$(y) $(TBBDIR.soia)/$(plib)tbbmalloc.$(y)                                                           \
                      $(if $(or $(OS_is_lnx),$(OS_is_fbsd)), $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.so.2),$(wildcard $(TBBDIR.soia)/libtbbmalloc.so.2))\
                                                             $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.so.12),$(wildcard $(TBBDIR.soia)/libtbbmalloc.so.12))\
                                                             $(if $(wildcard $(TBBDIR.soia)/libtbb.so.2),$(wildcard $(TBBDIR.soia)/libtbb.so.2))\
@@ -321,7 +321,7 @@ daaldep.win32e.mkl.seq := $(MKLFPKDIR.libia)/daal_mkl_sequential.$a
 daaldep.win32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
 daaldep.win32e.vml :=
 daaldep.win32e.ipp :=
-daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) tbb.lib tbbmalloc.lib libcpmt.lib libcmt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
+daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) tbb12.lib tbbmalloc.lib libcpmt.lib libcmt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32e.rt.seq  := libcpmt.lib libcmt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32e.threxport := export.def
 
