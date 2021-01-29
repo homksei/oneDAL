@@ -24,7 +24,7 @@ help:
 	@echo
 	@echo "name              - example name. Please see daal.lst file"
 	@echo
-	@echo "compiler_name     - can be gnu, clang, or intel. Default value is intel."
+	@echo "compiler_name     - can be gnu, clang, or intel icc and icx. Default value is intel."
 	@echo "                    Intel(R) C Compiler as default."
 	@echo "                    If compiler=gnu then GNU C compiler will be used."
 	@echo "                    If compiler=clang then Clang C compiler will be used."
@@ -71,7 +71,7 @@ ifndef example
     example = $(DAAL)
 endif
 
-ifeq (,$(filter gnu clang,$(compiler)))
+ifeq (,$(filter gnu clang icx,$(compiler)))
     override compiler = intel
 endif
 
@@ -107,6 +107,13 @@ RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(
 ifeq ($(compiler),intel)
     CC = icc
 endif
+
+ifeq ($(compiler),icx)
+    gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
+    CC = icx --gcc-toolchain=$(gcc_toolchain)
+    COPTS += -lstdc++
+endif
+
 
 ifeq ($(compiler),gnu)
     CC = g++
