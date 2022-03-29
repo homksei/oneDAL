@@ -28,7 +28,7 @@ CORE.SERV.COMPILER.clang = generic
 -Zl.clang =
 -DEBC.clang = -g
 
-COMPILER.mac.clang = clang++ -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=10.14 -fwrapv \
+COMPILER.mac.clang = clang++ -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=11 -fwrapv \
                      -Werror -Wreturn-type
 COMPILER.fbsd.clang = clang++ $(if $(IA_is_ia32),-m32,-m64) -fgnu-runtime -Wno-inconsistent-missing-override -nostdinc++ \
                       -I/usr/include/c++/v1 -I/usr/local/include \
