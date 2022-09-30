@@ -55,7 +55,7 @@ void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array,
         if (value >= casted_top)
             continue;
         indices_ptr[i] = dal::detail::integral_cast<std::int64_t>(value);
-        k++;
+        k = i + 1
     }
     ONEDAL_ASSERT(k == count);
 }
