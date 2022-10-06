@@ -19,7 +19,7 @@ COMPILER ?= icc
 
 $(if $(filter $(COMPILERs),$(COMPILER)),,$(error COMPILER must be one of $(COMPILERs)))
 
-CPUs := sse2 ssse3 sse42 avx2 avx512_mic avx512 avx
+CPUs := sse2 ssse3 sse42 avx2 avx512 avx
 CPUs.files := nrh mrm neh snb hsw skx
 USERREQCPU := $(filter-out $(filter $(CPUs),$(REQCPU)),$(REQCPU))
 USECPUS := $(if $(REQCPU),$(if $(USERREQCPU),$(error Unsupported value/s in REQCPU: $(USERREQCPU). List of supported CPUs: $(CPUs)),$(REQCPU)),$(CPUs))
@@ -171,10 +171,6 @@ USECPUS.out.defs.filter := $(if $(USECPUS.out.defs),sed $(sed.-b) $(sed.-i) -E -
 # daal/include - header files
 # daal/lib - platform-independent libraries (jar files)
 # daal/lib/intel64 - static and dynamic libraries for intel64
-
-# List of needed threadings layers can be specified in DAALTHRS.
-# if DAALTHRS is empty, threading will be incapsulated to core
-DAALTHRS ?= tbb
 DAALAY   ?= a y
 
 DIR:=.
@@ -449,7 +445,6 @@ CORE.SERV.srcdir          := $(CPPDIR.daal)/src/services
 CORE.SERV.COMPILER.srcdir := $(CPPDIR.daal)/src/services/compiler/$(CORE.SERV.COMPILER.$(COMPILER))
 
 CORE.srcdirs  := $(CORE.SERV.srcdir) $(CORE.srcdir)                  \
-                 $(if $(DAALTHRS),,$(THR.srcdir))                    \
                  $(addprefix $(CORE.SERV.srcdir)/, $(CORE.SERVICES)) \
                  $(addprefix $(CORE.srcdir)/, $(CORE.ALGORITHMS))    \
                  $(CORE.SERV.COMPILER.srcdir) $(EXTERNALS.srcdir)    \
@@ -961,8 +956,7 @@ _daal_jj: _daal_jar _daal_jni
 _daal_core:  info.building.core
 _daal_core:  $(WORKDIR.lib)/$(core_a) $(WORKDIR.lib)/$(core_y) ## TODO: move list of needed libs to one env var!!!
 _daal_thr:   info.building.threading
-_daal_thr:   $(if $(DAALTHRS),$(foreach ithr,$(DAALTHRS),_daal_thr_$(ithr)),)
-_daal_thr_tbb:   $(WORKDIR.lib)/$(thr_tbb_a) $(WORKDIR.lib)/$(thr_tbb_y)
+_daal_thr:   $(WORKDIR.lib)/$(thr_tbb_a) $(WORKDIR.lib)/$(thr_tbb_y)
 _daal_jar _daal_jni: info.building.java
 _daal_jar: $(WORKDIR.lib)/$(daal_jar)
 _daal_jni: $(WORKDIR.lib)/$(jni_so)
