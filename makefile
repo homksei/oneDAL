@@ -272,7 +272,6 @@ mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.inc
 include makefile.ver
 
 dep_thr := $(if $(MSVC_RT_is_release),tbb12.lib tbbmalloc.lib msvcrt.lib msvcprt.lib /nodefaultlib:libucrt.lib ucrt.lib, tbb12_debug.lib tbbmalloc_debug.lib msvcrtd.lib msvcprtd.lib /nodefaultlib:libucrtd.lib ucrtd.lib)
-dep_seq := $(if $(MSVC_RT_is_release),msvcrt.lib msvcprt.lib, msvcrtd.lib msvcprtd.lib)
 
 y_full_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(MINORBINARY).$(y),.$(y).$(MAJORBINARY).$(MINORBINARY)))
 y_major_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(y),.$(y).$(MAJORBINARY)))
@@ -309,60 +308,50 @@ release.ONEAPI.LIBS_Y.dpc := $(oneapi_y.dpc)
 
 # Libraries required for building
 daaldep.lnx32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
-daaldep.lnx32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
 daaldep.lnx32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
 daaldep.lnx32e.vml :=
 daaldep.lnx32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.rt.thr := -L$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
-daaldep.lnx32e.rt.seq := -lpthread $(daaldep.lnx32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.rt.dpc := -lpthread $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.lnx32e.threxport := export_lnx32e.def
 
 daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.grep.filter) | sed -e 's/^/-u /'
 
 daaldep.win32e.mkl.thr := $(MKLFPKDIR.libia)/daal_mkl_thread$d.$a
-daaldep.win32e.mkl.seq := $(MKLFPKDIR.libia)/daal_mkl_sequential.$a
 daaldep.win32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core$d.$a
 daaldep.win32e.vml :=
 daaldep.win32e.ipp :=
 daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) $(dep_thr) $(if $(CHECK_DLL_SIG),Wintrust.lib)
-daaldep.win32e.rt.seq  := $(dep_seq) $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32e.threxport := export.def
 
 daaldep.win.threxport.create = grep -v -E '^(;|$$)' $< $(USECPUS.out.grep.filter)
 
 
 daaldep.mac32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
-daaldep.mac32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
 daaldep.mac32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
 daaldep.mac32e.vml :=
 daaldep.mac32e.ipp :=
 daaldep.mac32e.rt.thr := -L$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc $(daaldep.mac32e.rt.$(COMPILER))
-daaldep.mac32e.rt.seq := $(daaldep.mac32e.rt.$(COMPILER))
 daaldep.mac32e.threxport := export_mac.def
 
 daaldep.mac.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.grep.filter) | sed -e 's/^/-u /'
 
 
 daaldep.fbsd32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
-daaldep.fbsd32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
 daaldep.fbsd32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
 daaldep.fbsd32e.vml :=
 daaldep.fbsd32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.fbsd32e.rt.thr := -L$(RELEASEDIR.tbb.soia) -ltbb -ltbbmalloc -lpthread $(daaldep.fbsd32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
-daaldep.fbsd32e.rt.seq := -lpthread $(daaldep.fbsd32e.rt.$(COMPILER)) $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.fbsd32e.threxport := export_lnx32e.def
 
 daaldep.fbsd.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.grep.filter) | sed -e 's/^/-Wl,-u -Wl,/'
 
 
 daaldep.mkl.thr := $(daaldep.$(PLAT).mkl.thr)
-daaldep.mkl.seq := $(daaldep.$(PLAT).mkl.seq)
 daaldep.mkl     := $(daaldep.$(PLAT).mkl)
 daaldep.vml     := $(daaldep.$(PLAT).vml)
 daaldep.ipp     := $(daaldep.$(PLAT).ipp)
 daaldep.rt.thr  := $(daaldep.$(PLAT).rt.thr)
-daaldep.rt.seq  := $(daaldep.$(PLAT).rt.seq)
 daaldep.rt.dpc  := $(daaldep.$(PLAT).rt.dpc)
 
 # List oneAPI header files to populate release/include.
@@ -498,7 +487,6 @@ $(WORKDIR.lib)/$(core_a):                   LOPT:=
 $(WORKDIR.lib)/$(core_a):                   $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a) ; $(LINK.STATIC)
 
 $(WORKDIR.lib)/$(core_y): LOPT += $(-fPIC)
-$(WORKDIR.lib)/$(core_y): LOPT += $(daaldep.rt.seq)
 $(WORKDIR.lib)/$(core_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 ifdef OS_is_win
 $(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(core_y)
@@ -786,7 +774,6 @@ $(WORKDIR.lib)/$(oneapi_y): \
     $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
     $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(-fPIC)
-$(WORKDIR.lib)/$(oneapi_y): LOPT += $(daaldep.rt.seq)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
 ifdef OS_is_win
