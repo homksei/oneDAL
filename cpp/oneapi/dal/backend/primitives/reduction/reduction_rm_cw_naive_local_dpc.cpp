@@ -21,9 +21,7 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_cw_naive_local {
-    using acc_t =
-        sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local>;
-
+    using acc_t = sycl::local_accessor<Float, 1>;
 public:
     kernel_reduction_rm_cw_naive_local(acc_t cache,
                                        const Float* input,
@@ -145,7 +143,7 @@ reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::get_kernel(sycl::handler&
                                                                   std::int64_t stride,
                                                                   const BinaryOp& binary,
                                                                   const UnaryOp& unary) {
-    sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local> local_acc{
+    sycl::local_accessor<Float, 1> local_acc{
         sycl::range<1>(lm),
         h
     };
