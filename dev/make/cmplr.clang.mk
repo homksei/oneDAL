@@ -28,7 +28,7 @@ CORE.SERV.COMPILER.clang = generic
 -Zl.clang =
 -DEBC.clang = -g
 
-COMPILER.mac.clang = clang++ -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=10.15 -fwrapv \
+COMPILER.mac.clang = clang++ -m64 -fgnu-runtime -stdlib=libc++ -mmacosx-version-min=11 -fwrapv \
                      -Werror -Wreturn-type
 COMPILER.lnx.clang = clang++ -m64 \
                      -Werror -Wreturn-type
