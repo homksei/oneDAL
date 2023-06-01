@@ -47,7 +47,7 @@ if platform in ["linux2", "linux"]:
     SUFF_STAT_LIB = ".a"
     TBB_LIBS = "-ltbb -ltbbmalloc"
     OTHER_LIBS = "-lpthread -ldl"
-    OTHER_OPTS = "-std=c++17"
+    OTHER_OPTS = "-Wno-deprecated-declarations -std=c++17"
 elif platform == "darwin":
     PREF_LIB = "lib"
     LIBDIR = 'lib'
@@ -55,7 +55,7 @@ elif platform == "darwin":
     SUFF_STAT_LIB = ".a"
     TBB_LIBS = "-ltbb -ltbbmalloc"
     OTHER_LIBS = "-ldl"
-    OTHER_OPTS = "-std=c++17"
+    OTHER_OPTS = "-Wno-deprecated-declarations -std=c++17"
 elif platform in ["win32", "win64"]:
     PREF_LIB = ""
     LIBDIR = 'lib/intel64'
@@ -63,7 +63,7 @@ elif platform in ["win32", "win64"]:
     SUFF_STAT_LIB = ".lib"
     TBB_LIBS = "tbb12.lib tbbmalloc.lib"
     OTHER_LIBS = " "
-    OTHER_OPTS = "/std:c++17 /MD"
+    OTHER_OPTS = "/ignore:4078 /std:c++17 /MD"
 else:
     raise RuntimeError("Not support OS {}".format(platform))
 
