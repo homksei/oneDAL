@@ -80,6 +80,6 @@ header:
     - 'deploy/local/config.txt'
     - 'deploy/nuget/inteldal.nuspec.tpl'
 
-  comment: always
+  comment: on-failure
 
   license-location-threshold: 111  # specifies the index threshold where the license header can be located.
