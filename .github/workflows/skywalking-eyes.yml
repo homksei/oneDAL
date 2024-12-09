@@ -17,7 +17,6 @@ concurrency:
 jobs:
   check-license-header:
     name: Copyright Check
-    if: github.repository == 'uxlfoundation/oneDAL'
     runs-on: ubuntu-24.04
     permissions:
       issues: write
@@ -30,3 +29,4 @@ jobs:
         with:
           config: ".github/.licenserc.yaml"
           mode: "check"
+          verbosity: "debug"
