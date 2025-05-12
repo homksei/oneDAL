@@ -24,8 +24,8 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["^\\.ci\\/env\\/editorconfig-checker\\.sh$"],
-      "matchStrings": ["VERSION=(?<currentValue>v\\d+\\.\\d+\\.\\d+)"],
+      "fileMatch": ["^\\.github\\/workflows\\/code-source-checks\\.yml$"],
+      "matchStrings": ["renovate: editorconfig-checker version\n.*version: \"(?<currentValue>v\\d+\\.\\d+\\.\\d+)\""],
       "depNameTemplate": "editorconfig-checker/editorconfig-checker",
       "datasourceTemplate": "github-releases"
     },
