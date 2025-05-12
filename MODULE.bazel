@@ -104,7 +104,7 @@ dpl_repo(
         "onedpl_devel-2022.7.1.data/data",
     ],
 )
-   
+
 mkl_repo = use_repo_rule("@onedal//dev/bazel/deps:mkl.bzl", "mkl_repo")
 mkl_repo(
     name = "mkl",

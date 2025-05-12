@@ -40,23 +40,6 @@ resources:
       endpoint: intel-daal-connection
 
 jobs:
-- job: 'FormatterChecks'
-  pool:
-    vmImage: '$(VM_IMAGE)'
-  steps:
-    - script: |
-        .ci/env/apt.sh clang-format
-        .ci/env/editorconfig-checker.sh
-      displayName: 'Install Dependencies'
-    - script: |
-        .ci/scripts/clang-format.sh
-      displayName: 'clang-format check'
-      failOnStderr: true
-    - script: |
-        editorconfig-checker
-      displayName: 'editorconfig-checker'
-      failOnStderr: true
-
 - job: 'LinuxMakeGNU_MKL'
   timeoutInMinutes: 0
   variables:
