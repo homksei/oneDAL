@@ -53,8 +53,6 @@ jobs:
       - name: Prepare and run Coverity build
         run: |
           source /opt/intel/oneapi/setvars.sh
-          export CC=gcc
-          export CXX=g++
           export PATH="${PWD}/cov-linux64-tool/bin:${PATH}"
           cov-build --dir cov-int make -f makefile daal PLAT=lnx32e
 
