@@ -39,6 +39,7 @@ show_help() {
 --sysroot:The sysroot to use, in the case that clang is used as the cross-compiler
 --debug:Set build debug mode flag
 --jobs:The number of parallel threads to use for oneDAL building
+--coverity: Build target with coverity support.
 '
 }
 
@@ -87,6 +88,9 @@ while [[ $# -gt 0 ]]; do
         shift;;
         --jobs)
         jobs="$2"
+        shift;;
+        --coverity)
+        use_coverity="yes"
         shift;;
         --help)
         show_help
@@ -277,8 +281,15 @@ if [ -n "${use_debug}" ]; then
     make_options+=(REQDBG="${use_debug}")
 fi
 
+if [ "${use_coverity}" == "yes" ]; then
+    echo "Running build with Coverity"
+    build_cmd=(cov-build --dir cov-int make "${make_options[@]}")
+else
+    build_cmd=(make "${make_options[@]}")
+fi
+
 echo "Calling make"
 echo "CXX=$CXX"
 echo "CC=$CC"
-echo make "${make_options[@]}"
-make "${make_options[@]}"
+echo "${build_cmd[@]}"
+"${build_cmd[@]}"

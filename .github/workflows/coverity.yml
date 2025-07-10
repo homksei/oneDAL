@@ -36,7 +36,7 @@ jobs:
     if: github.repository == 'vyevtyus/oneDAL'
     runs-on: [ubuntu-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Download Coverity Build Tool (linux64)
         run: |
@@ -44,17 +44,20 @@ jobs:
             --data "token=${{secrets.COVERITY_TOKEN}}&project=${{env.COVERITY_PROJECT}}" || { echo "Download failed"; exit 1; }
           mkdir cov-linux64-tool
           tar -xzf cov-linux64-tool.tar.gz --strip 1 -C cov-linux64-tool
-
-      - name: Download Intel compiler
-        run: |
-          wget --progress=dot:giga https://registrationcenter-download.intel.com/akdlm/IRC_NAS/cd63be99-88b0-4981-bea1-2034fe17f5cf/intel-dpcpp-cpp-compiler-2025.1.0.573_offline.sh
-          sudo bash intel-dpcpp-cpp-compiler-2025.1.0.573_offline.sh -s -a -s --action install --eula accept
-
-      - name: Prepare and run Coverity build
+      - name: Install DPC++
+        run: .ci/env/apt.sh dpcpp
+      - name: Install MKL
+        run: .ci/env/apt.sh mkl
+      - name: Make daal (Coverity)
         run: |
           source /opt/intel/oneapi/setvars.sh
           export PATH="${PWD}/cov-linux64-tool/bin:${PATH}"
-          cov-build --dir cov-int make -f makefile daal PLAT=lnx32e
+          .ci/scripts/build.sh --coverity --compiler icx --optimizations avx2 --target daal
+      - name: Make onedal (Coverity)
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          .ci/scripts/build.sh --coverity --compiler icx --optimizations avx2 --target onedal
+          export PATH="${PWD}/cov-linux64-tool/bin:${PATH}"
 
       - name: Archive Coverity build results
         id: check_size
