@@ -57,7 +57,7 @@ def _impl(ctx):
                     ],
                     flag_groups = [
                         flag_group(
-                            flags = ctx.attr.compile_flags,
+                            flags = ctx.attr.compile_flags if ctx.attr.compile_flags else ["/nologo"],
                         ),
                     ],
                 ),
@@ -78,7 +78,7 @@ def _impl(ctx):
                     ],
                     flag_groups = [
                         flag_group(
-                            flags = ctx.attr.cxx_flags,
+                            flags = ctx.attr.cxx_flags if ctx.attr.cxx_flags else ["/std:c++17"],
                         ),
                     ],
                 ),
@@ -96,7 +96,7 @@ def _impl(ctx):
                     ],
                     flag_groups = [
                         flag_group(
-                            flags = ctx.attr.link_flags,
+                            flags = ctx.attr.link_flags if ctx.attr.link_flags else ["/NOLOGO"],
                         ),
                     ],
                 ),
@@ -120,7 +120,7 @@ def _impl(ctx):
                     ],
                     flag_groups = [
                         flag_group(
-                            flags = ctx.attr.opt_compile_flags,
+                            flags = ctx.attr.opt_compile_flags if ctx.attr.opt_compile_flags else ["/O2"],
                         ),
                     ],
                 ),
@@ -132,7 +132,7 @@ def _impl(ctx):
                     ],
                     flag_groups = [
                         flag_group(
-                            flags = ctx.attr.opt_link_flags,
+                            flags = ctx.attr.opt_link_flags if ctx.attr.opt_link_flags else ["/OPT:REF"],
                         ),
                     ],
                 ),
@@ -156,7 +156,7 @@ def _impl(ctx):
                     ],
                     flag_groups = [
                         flag_group(
-                            flags = ctx.attr.dbg_compile_flags,
+                            flags = ctx.attr.dbg_compile_flags if ctx.attr.dbg_compile_flags else ["/Od", "/Z7"],
                         ),
                     ],
                 ),
@@ -180,40 +180,50 @@ def _impl(ctx):
         ),
     ]
 
-    if ctx.attr.coverage_compile_flags:
-        features.append(
-            feature(
-                name = "coverage",
-                provides = ["profile"],
-                flag_sets = [
-                    flag_set(
-                        actions = [
-                            ACTION_NAMES.preprocess_assemble,
-                            ACTION_NAMES.c_compile,
-                            ACTION_NAMES.cpp_compile,
-                            ACTION_NAMES.cpp_header_parsing,
-                            ACTION_NAMES.cpp_module_compile,
-                        ],
-                        flag_groups = [
-                            flag_group(
-                                flags = ctx.attr.coverage_compile_flags,
-                            ),
-                        ],
-                    ),
-                    flag_set(
-                        actions = [
-                            ACTION_NAMES.cpp_link_executable,
-                            ACTION_NAMES.cpp_link_dynamic_library,
-                        ],
-                        flag_groups = [
-                            flag_group(
-                                flags = ctx.attr.coverage_link_flags,
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-        )
+    if ctx.attr.coverage_compile_flags or ctx.attr.coverage_link_flags:
+        coverage_flag_sets = []
+
+        if ctx.attr.coverage_compile_flags:
+            coverage_flag_sets.append(
+                flag_set(
+                    actions = [
+                        ACTION_NAMES.preprocess_assemble,
+                        ACTION_NAMES.c_compile,
+                        ACTION_NAMES.cpp_compile,
+                        ACTION_NAMES.cpp_header_parsing,
+                        ACTION_NAMES.cpp_module_compile,
+                    ],
+                    flag_groups = [
+                        flag_group(
+                            flags = ctx.attr.coverage_compile_flags,
+                        ),
+                    ],
+                )
+            )
+
+        if ctx.attr.coverage_link_flags:
+            coverage_flag_sets.append(
+                flag_set(
+                    actions = [
+                        ACTION_NAMES.cpp_link_executable,
+                        ACTION_NAMES.cpp_link_dynamic_library,
+                    ],
+                    flag_groups = [
+                        flag_group(
+                            flags = ctx.attr.coverage_link_flags,
+                        ),
+                    ],
+                )
+            )
+
+        if coverage_flag_sets:
+            features.append(
+                feature(
+                    name = "coverage",
+                    provides = ["profile"],
+                    flag_sets = coverage_flag_sets,
+                ),
+            )
 
     return cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
