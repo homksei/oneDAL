@@ -14,14 +14,18 @@
 # limitations under the License.
 #===============================================================================
 
-def configure_extra_toolchain_win(repo_ctx):
+def configure_extra_toolchain_win(repo_ctx, compiler_id):
     """Configure extra toolchain for Windows"""
     patch_daal_kernel_defines_path = str(repo_ctx.path("@onedal//dev/bazel/toolchains/tools:patch_daal_kernel_defines_win.tpl.bat"))
+
+    # Template substitutions for Windows toolchain
+    substitutions = {
+        "%{patch_daal_kernel_defines}": patch_daal_kernel_defines_path,
+        "%{compiler_id}": compiler_id,  # Include compiler info for potential future use
+    }
 
     repo_ctx.template(
         "BUILD",
         Label("@onedal//dev/bazel/toolchains:extra_toolchain_win.tpl.BUILD"),
-        {
-            "%{patch_daal_kernel_defines}": patch_daal_kernel_defines_path,
-        }
+        substitutions
     )
