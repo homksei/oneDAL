@@ -217,7 +217,17 @@ def _detect_cpu_extension(repo_ctx):
                    cpudetect_result.stderr + "\n" +
                    "Use {} by default.".format(_ISA_EXTENSION_AUTO_DEFAULT))
         return _ISA_EXTENSION_AUTO_DEFAULT
-    return cpudetect_result.stdout.strip()
+
+    detected_cpu = cpudetect_result.stdout.strip()
+
+    # Validate that detected CPU is a valid ISA extension
+    if detected_cpu not in _ISA_EXTENSIONS:
+        utils.warn("CPU detector returned invalid extension '{}'\n".format(detected_cpu) +
+                   "Valid extensions: {}\n".format(_ISA_EXTENSIONS) +
+                   "Use {} by default.".format(_ISA_EXTENSION_AUTO_DEFAULT))
+        return _ISA_EXTENSION_AUTO_DEFAULT
+
+    return detected_cpu
 
 def _declare_onedal_config_impl(repo_ctx):
     auto_cpu = _detect_cpu_extension(repo_ctx)

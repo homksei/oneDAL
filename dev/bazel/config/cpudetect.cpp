@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#if defined(__x86_64__) || defined(__x86_64) || defined(__amd64) || defined(_M_AMD64)
+#if defined(__x86_64__) || defined(__x86_64) || defined(__amd64) || defined(_M_AMD64) || defined(_M_X64)
     #define TARGET_X86_64
 #endif
 
@@ -189,10 +189,25 @@ std::string detect_cpu() {
         return "sve";
     #elif defined(TARGET_RISCV64)
         return "rv64";
+    #else
+        // Fallback for unknown architectures - assume modern x86_64
+        return "avx2";
     #endif
 }
 
 int main(int argc, char const *argv[]) {
-    std::cout << detect_cpu() << std::endl;
+    std::string cpu = detect_cpu();
+
+    // Debug output to stderr for troubleshooting
+    #ifdef _MSC_VER
+        std::cerr << "Windows MSVC build, detected: " << cpu << std::endl;
+    #endif
+    #ifdef TARGET_X86_64
+        std::cerr << "TARGET_X86_64 defined" << std::endl;
+    #else
+        std::cerr << "TARGET_X86_64 NOT defined" << std::endl;
+    #endif
+
+    std::cout << cpu << std::endl;
     return 0;
 }
