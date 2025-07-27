@@ -14,11 +14,6 @@
 # limitations under the License.
 #===============================================================================
 
-load(
-    "@onedal//dev/bazel/toolchains:extra_toolchain.bzl",
-    "extra_toolchain_info",
-)
-
 def _find_tool(repo_ctx, tool_name):
     if tool_name.startswith("C:") or tool_name.startswith("c:"):
         return tool_name

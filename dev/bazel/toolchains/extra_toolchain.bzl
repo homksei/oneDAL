@@ -17,8 +17,8 @@
 load("@onedal//dev/bazel/toolchains:common.bzl", "detect_os", "detect_compiler")
 load("@onedal//dev/bazel/toolchains:extra_toolchain_lnx.bzl",
     "configure_extra_toolchain_lnx")
-load("@onedal//dev/bazel/toolchains:extra_toolchain_win.bzl",
-    "extra_toolchain_autoconf_win")
+load("@onedal//dev/bazel/toolchains:extra_toolchain_win_simple.bzl",
+    "configure_extra_toolchain_win")
 
 ExtraToolchainInfo = provider(
     fields = [
@@ -48,14 +48,7 @@ def _onedal_extra_toolchain_impl(repo_ctx):
     if os_id == "lnx":
         configure_extra_toolchain_lnx(repo_ctx, compiler_id)
     elif os_id == "win":
-        # For Windows, create a simple toolchain
-        repo_ctx.template(
-            "BUILD",
-            Label("@onedal//dev/bazel/toolchains:extra_toolchain_win.tpl.BUILD"),
-            {
-                "%{patch_daal_kernel_defines}": str(repo_ctx.path("@onedal//dev/bazel/toolchains/tools:patch_daal_kernel_defines_win.tpl.bat")),
-            }
-        )
+        configure_extra_toolchain_win(repo_ctx, compiler_id)
     else:
         fail("Unsupported OS: " + os_id)
 

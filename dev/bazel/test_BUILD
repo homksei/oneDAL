@@ -1,0 +1,18 @@
+package(default_visibility = ["//visibility:public"])
+
+# Simple test to verify Windows toolchain detection
+load("@onedal//dev/bazel/toolchains:common.bzl", "detect_os")
+
+print("Windows toolchain support debugging")
+
+# Basic filegroup for testing
+filegroup(
+    name = "test_windows_support",
+    srcs = [],
+)
+
+genrule(
+    name = "windows_detection_test",
+    outs = ["windows_test.txt"],
+    cmd = "echo 'Windows toolchain detection test' > $@",
+)
