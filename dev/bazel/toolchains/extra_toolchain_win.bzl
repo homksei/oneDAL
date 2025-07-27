@@ -14,16 +14,30 @@
 # limitations under the License.
 #===============================================================================
 
-def configure_extra_toolchain_lnx(repo_ctx, reqs):
+load(
+    "@onedal//dev/bazel/toolchains:common.bzl",
+    "detect_os",
+    "detect_compiler",
+)
+
+def _configure_extra_toolchain_win(repo_ctx, reqs):
+    """Configure extra toolchain for Windows."""
+
+    # Copy Windows-specific patch script
     repo_ctx.template(
-        "patch_daal_kernel_defines.sh",
-        Label("@onedal//dev/bazel/toolchains/tools:patch_daal_kernel_defines.sh"),
+        "patch_daal_kernel_defines.bat",
+        Label("@onedal//dev/bazel/toolchains/tools:patch_daal_kernel_defines.bat"),
     )
-    patch_daal_kernel_defines_path = str(repo_ctx.path("patch_daal_kernel_defines.sh"))
+    patch_daal_kernel_defines_path = str(repo_ctx.path("patch_daal_kernel_defines.bat"))
+
+    # Template BUILD file for extra toolchain
     repo_ctx.template(
         "BUILD",
-        Label("@onedal//dev/bazel/toolchains:extra_toolchian_lnx.tpl.BUILD"),
+        Label("@onedal//dev/bazel/toolchains:extra_toolchain_win.tpl.BUILD"),
         {
             "%{patch_daal_kernel_defines}": patch_daal_kernel_defines_path,
-        }
+        },
     )
+
+def configure_extra_toolchain_win(repo_ctx, reqs):
+    return _configure_extra_toolchain_win(repo_ctx, reqs)

@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,16 +14,11 @@
 # limitations under the License.
 #===============================================================================
 
-def configure_extra_toolchain_lnx(repo_ctx, reqs):
-    repo_ctx.template(
-        "patch_daal_kernel_defines.sh",
-        Label("@onedal//dev/bazel/toolchains/tools:patch_daal_kernel_defines.sh"),
-    )
-    patch_daal_kernel_defines_path = str(repo_ctx.path("patch_daal_kernel_defines.sh"))
-    repo_ctx.template(
-        "BUILD",
-        Label("@onedal//dev/bazel/toolchains:extra_toolchian_lnx.tpl.BUILD"),
-        {
-            "%{patch_daal_kernel_defines}": patch_daal_kernel_defines_path,
-        }
-    )
+package(default_visibility = ["//visibility:public"])
+
+load("@onedal//dev/bazel/toolchains:extra_toolchain.bzl", "extra_toolchain")
+
+extra_toolchain(
+    name = "extra_toolchain",
+    patch_daal_kernel_defines = "%{patch_daal_kernel_defines}",
+)

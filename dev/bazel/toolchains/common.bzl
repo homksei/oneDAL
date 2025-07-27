@@ -42,7 +42,8 @@ def detect_os(repo_ctx):
 
 def detect_default_compiler(repo_ctx, os_id):
     default = "icx"
-    is_icx_available = repo_ctx.which(default) != None
+    compiler_exe = default + (".exe" if os_id == "win" else "")
+    is_icx_available = repo_ctx.which(compiler_exe) != None
     if not is_icx_available:
         default = {
             "lnx": "gcc",

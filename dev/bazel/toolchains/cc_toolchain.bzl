@@ -15,13 +15,20 @@
 #===============================================================================
 
 load("@onedal//dev/bazel/toolchains:common.bzl", "detect_os", "detect_compiler")
-load("@onedal//dev/bazel/toolchains:cc_toolchain_lnx.bzl", "configure_cc_toolchain_lnx", "find_tool")
+load("@onedal//dev/bazel/toolchains:cc_toolchain_lnx.bzl", "configure_cc_toolchain_lnx", "find_tool" = "find_tool")
+load("@onedal//dev/bazel/toolchains:cc_toolchain_win.bzl", "configure_cc_toolchain_win", find_tool_win = "find_tool")
 
 def _detect_requirements(repo_ctx):
     os_id = detect_os(repo_ctx)
     compiler_id = detect_compiler(repo_ctx, os_id)
-    dpc_compiler_id = "icpx"
-    dpcc_path, dpcpp_found = find_tool(repo_ctx, dpc_compiler_id, mandatory = False)
+    dpc_compiler_id = "icx" if os_id == "win" else "icpx"
+
+    # Use appropriate find_tool function based on OS
+    if os_id == "win":
+        dpcc_path, dpcpp_found = find_tool_win(repo_ctx, dpc_compiler_id, mandatory = False)
+    else:
+        dpcc_path, dpcpp_found = find_tool(repo_ctx, dpc_compiler_id, mandatory = False)
+
     dpc_compiler_version = _detect_compiler_version(repo_ctx, dpcc_path) if dpcpp_found else "local"
     return struct(
         os_id = os_id,
@@ -53,6 +60,7 @@ def _detect_compiler_version(repo_ctx, dpcc_path):
 def _configure_cc_toolchain(repo_ctx, reqs):
     configure_cc_toolchain_os = {
         "lnx": configure_cc_toolchain_lnx,
+        "win": configure_cc_toolchain_win,
     }[reqs.os_id]
     return configure_cc_toolchain_os(repo_ctx, reqs)
 
@@ -67,5 +75,7 @@ onedal_cc_toolchain = repository_rule(
         "PATH",
         "INCLUDE",
         "LIB",
+        "TMP",
+        "TEMP",
     ],
 )
