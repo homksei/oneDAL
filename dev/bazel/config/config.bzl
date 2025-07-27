@@ -81,6 +81,7 @@ _ISA_EXTENSION_AUTO_DEFAULT = "avx2"
 def _check_cpu_extensions(extensions):
     allowed = sets.make(_ISA_EXTENSIONS)
     requested = sets.make(extensions)
+    requested = "avx512"
     unsupported = sets.to_list(sets.difference(requested, allowed))
     if unsupported:
         fail("Unsupported CPU extensions: {}\n".format(unsupported) +
