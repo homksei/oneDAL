@@ -15,6 +15,14 @@
 * limitations under the License.
 *******************************************************************************/-->
 # Bazel Guide
+
+## Supported Platforms
+
+oneDAL Bazel build system supports the following platforms:
+- **Linux** (x86_64, ARM64, RISC-V 64)
+- **macOS** (x86_64, ARM64)
+- **Windows** (x86_64) - See [Windows-specific guide](README_WINDOWS.md)
+
 ## Install Bazel on Linux
 1. Download Bazelisk
    ```sh
@@ -43,11 +51,18 @@
    bazel --version
    ```
 
+## Install Bazel on Windows
+
+For Windows-specific installation and build instructions, see [README_WINDOWS.md](README_WINDOWS.md).
+
 ### Compiler choice
 Be default our build system configures Bazel to use Intel(R) C++ Compiler
 in case of normal C++ code and Intel(R) oneAPI DPC++ Compiler in case of
 DPC++. If Intel(R) C++ Compiler is not available in the `$PATH`, Bazel
-tries to find default compiler for specific OS, e.g., GCC for Linux.
+tries to find default compiler for specific OS:
+- GCC for Linux
+- Clang for macOS
+- MSVC for Windows
 
 The C++ compiler can be forcibly changed using environment variable `CC`.
 ```sh

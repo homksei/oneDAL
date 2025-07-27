@@ -1,10 +1,10 @@
 # Global options
 
-common  
+common
 
 build -c opt \
       --incompatible_enable_cc_toolchain_resolution \
-      --incompatible_require_linker_input_cc_api 
+      --incompatible_require_linker_input_cc_api
 
 # Aliases for user-defined flags
 build --flag_alias=backend_config=@config//:backend_config
@@ -103,3 +103,39 @@ build:dpc-private \
 
 test:dpc-private \
     --test_tag_filters="dpc,-public"
+
+
+# Configuration: 'win'
+# Windows specific configuration
+build:win \
+    --cpu=x64_windows \
+    --host_cpu=x64_windows \
+    --compiler=msvc \
+    --copt=/std:c++17 \
+    --copt=/EHsc \
+    --copt=/bigobj \
+    --copt=/nologo \
+    --copt=/DWIN32 \
+    --copt=/D_WINDOWS \
+    --copt=/D_CRT_SECURE_NO_WARNINGS \
+    --copt=/D_SCL_SECURE_NO_WARNINGS \
+    --copt=/DNOMINMAX \
+    --linkopt=/NOLOGO \
+    --linkopt=/SUBSYSTEM:CONSOLE \
+    --linkopt=/MACHINE:X64
+
+# Configuration: 'win-icx'
+# Windows with Intel C++ Compiler
+build:win-icx \
+    --config=win \
+    --action_env=CC=icx \
+    --copt=/Qopenmp-simd
+
+# Configuration: 'win-debug'
+# Windows debug build
+build:win-debug \
+    --config=win \
+    --compilation_mode=dbg \
+    --copt=/Od \
+    --copt=/Zi \
+    --copt=/DEBUG

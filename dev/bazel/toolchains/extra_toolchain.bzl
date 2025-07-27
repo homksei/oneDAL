@@ -17,6 +17,8 @@
 load("@onedal//dev/bazel/toolchains:common.bzl", "detect_os", "detect_compiler")
 load("@onedal//dev/bazel/toolchains:extra_toolchain_lnx.bzl",
     "configure_extra_toolchain_lnx")
+load("@onedal//dev/bazel/toolchains:extra_toolchain_win.bzl",
+    "extra_toolchain_autoconf_win")
 
 ExtraToolchainInfo = provider(
     fields = [
@@ -42,10 +44,20 @@ extra_toolchain = rule(
 def _onedal_extra_toolchain_impl(repo_ctx):
     os_id = detect_os(repo_ctx)
     compiler_id = detect_compiler(repo_ctx, os_id)
-    configure_extra_toolchain_os = {
-        "lnx": configure_extra_toolchain_lnx,
-    }[os_id]
-    configure_extra_toolchain_os(repo_ctx, compiler_id)
+
+    if os_id == "lnx":
+        configure_extra_toolchain_lnx(repo_ctx, compiler_id)
+    elif os_id == "win":
+        # For Windows, create a simple toolchain
+        repo_ctx.template(
+            "BUILD",
+            Label("@onedal//dev/bazel/toolchains:extra_toolchain_win.tpl.BUILD"),
+            {
+                "%{patch_daal_kernel_defines}": str(repo_ctx.path("@onedal//dev/bazel/toolchains/tools:patch_daal_kernel_defines_win.tpl.bat")),
+            }
+        )
+    else:
+        fail("Unsupported OS: " + os_id)
 
 onedal_extra_toolchain = repository_rule(
     implementation = _onedal_extra_toolchain_impl,

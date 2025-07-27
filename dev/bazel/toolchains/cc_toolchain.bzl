@@ -16,6 +16,7 @@
 
 load("@onedal//dev/bazel/toolchains:common.bzl", "detect_os", "detect_compiler")
 load("@onedal//dev/bazel/toolchains:cc_toolchain_lnx.bzl", "configure_cc_toolchain_lnx", "find_tool")
+load("@onedal//dev/bazel/toolchains:cc_toolchain_win.bzl", "cc_autoconf_win")
 
 def _detect_requirements(repo_ctx):
     os_id = detect_os(repo_ctx)
@@ -51,10 +52,47 @@ def _detect_compiler_version(repo_ctx, dpcc_path):
     return date
 
 def _configure_cc_toolchain(repo_ctx, reqs):
-    configure_cc_toolchain_os = {
-        "lnx": configure_cc_toolchain_lnx,
-    }[reqs.os_id]
-    return configure_cc_toolchain_os(repo_ctx, reqs)
+    if reqs.os_id == "lnx":
+        configure_cc_toolchain_lnx(repo_ctx, reqs)
+    elif reqs.os_id == "win":
+        # For Windows, we need to use a different approach
+        # Create a repository rule for Windows toolchain
+        repo_ctx.template(
+            "BUILD",
+            Label("@onedal//dev/bazel/toolchains:cc_toolchain_win.tpl.BUILD"),
+            {
+                "%{cc}": "cl.exe",
+                "%{cpp}": "cl.exe",
+                "%{cxx}": "cl.exe",
+                "%{ar}": "lib.exe",
+                "%{ld}": "link.exe",
+                "%{gcov}": "gcov.exe",
+                "%{objcopy}": "objcopy.exe",
+                "%{objdump}": "objdump.exe",
+                "%{strip}": "strip.exe",
+                "%{nm}": "nm.exe",
+                "%{toolchain_identifier}": "msvc_x64",
+                "%{host_system_name}": "local",
+                "%{target_system_name}": "local",
+                "%{target_cpu}": "x64_windows",
+                "%{target_libc}": "msvcrt",
+                "%{compiler}": "msvc",
+                "%{abi_version}": "local",
+                "%{abi_libc_version}": "local",
+                "%{builtin_include_directories}": "[]",
+                "%{compile_flags}": '["/std:c++17", "/EHsc", "/nologo"]',
+                "%{cxx_flags}": "[]",
+                "%{link_flags}": '["/NOLOGO"]',
+                "%{opt_compile_flags}": '["/O2", "/DNDEBUG"]',
+                "%{opt_link_flags}": '["/OPT:REF"]',
+                "%{dbg_compile_flags}": '["/Od", "/Zi"]',
+                "%{coverage_compile_flags}": "[]",
+                "%{coverage_link_flags}": "[]",
+                "%{supports_start_end_lib}": "False",
+            }
+        )
+    else:
+        fail("Unsupported OS: " + reqs.os_id)
 
 def _onedal_cc_toolchain_impl(repo_ctx):
     reqs = _detect_requirements(repo_ctx)

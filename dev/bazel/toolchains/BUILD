@@ -17,3 +17,4 @@
 package(default_visibility = ["//visibility:public"])
 
 toolchain_type(name = "extra")
+toolchain_type(name = "extra_toolchain_type")
