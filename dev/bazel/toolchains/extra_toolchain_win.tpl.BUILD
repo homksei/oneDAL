@@ -18,5 +18,11 @@ toolchain(
         "@platforms//cpu:x86_64",
     ],
     toolchain = ":extra_toolchain",
-    toolchain_type = "@onedal//dev/bazel/toolchains:extra_toolchain_type",
+    toolchain_type = "@onedal//dev/bazel/toolchains:extra",
+)
+
+# Export all toolchains for registration
+alias(
+    name = "all",
+    actual = ":toolchain",
 )

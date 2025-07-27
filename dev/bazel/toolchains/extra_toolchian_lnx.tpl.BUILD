@@ -20,3 +20,9 @@ toolchain(
     toolchain = ":extra_tools",
     toolchain_type = "@onedal//dev/bazel/toolchains:extra",
 )
+
+# Export all toolchains for registration
+alias(
+    name = "all",
+    actual = ":extra_tools_lnx",
+)
