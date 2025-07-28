@@ -80,7 +80,7 @@ _ISA_EXTENSION_AUTO_DEFAULT = "avx2"
 
 def _check_cpu_extensions(extensions):
     allowed = sets.make(_ISA_EXTENSIONS)
-    requested = sets.make(extensions)
+    requested = allowed
     unsupported = sets.to_list(sets.difference(requested, allowed))
     if unsupported:
         fail("Unsupported CPU extensions: {}\n".format(unsupported) +
@@ -184,17 +184,39 @@ def _detect_cpu_extension(repo_ctx):
     cpudetect_src = repo_ctx.path(repo_ctx.attr._cpudetect_src)
     cpudetect_exe = repo_ctx.path("cpudetect")
     repo_ctx.report_progress("Compile cpu-detector")
-    compile_result = repo_ctx.execute([
-        "g++", "-pedantic", "-Wall", "-std=c++11",
-        cpudetect_src, "-o{}".format(cpudetect_exe),
-    ])
+
+    # Use appropriate compiler based on OS
+    if "windows" in repo_ctx.os.name:
+        # Try to use cl.exe (MSVC) on Windows
+        compile_result = repo_ctx.execute([
+            "cl.exe", "/EHsc", "/std:c++11",
+            str(cpudetect_src), "/Fe{}".format(cpudetect_exe),
+        ])
+        if compile_result.return_code != 0:
+            # Fallback to g++ if available (e.g., from MSYS2/MinGW)
+            compile_result = repo_ctx.execute([
+                "g++", "-pedantic", "-Wall", "-std=c++11",
+                str(cpudetect_src), "-o{}".format(cpudetect_exe),
+            ])
+    else:
+        compile_result = repo_ctx.execute([
+            "g++", "-pedantic", "-Wall", "-std=c++11",
+            str(cpudetect_src), "-o{}".format(cpudetect_exe),
+        ])
+
     if compile_result.return_code != 0:
         utils.warn("Cannot compile cpu-detector:\n" +
                    compile_result.stderr + "\n" +
                    "Use {} by default.".format(_ISA_EXTENSION_AUTO_DEFAULT))
         return _ISA_EXTENSION_AUTO_DEFAULT
     repo_ctx.report_progress("Run cpu-detector to determine default vector extension")
-    cpudetect_result = repo_ctx.execute([cpudetect_exe])
+
+    # Execute with proper extension based on OS
+    if "windows" in repo_ctx.os.name:
+        cpudetect_result = repo_ctx.execute([str(cpudetect_exe) + ".exe"])
+    else:
+        cpudetect_result = repo_ctx.execute([cpudetect_exe])
+
     if cpudetect_result.return_code != 0:
         utils.warn("Cannot run cpu-detector:\n" +
                    cpudetect_result.stderr + "\n" +

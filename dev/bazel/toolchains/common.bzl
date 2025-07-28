@@ -184,9 +184,16 @@ def _prepare_include_path(repo_ctx, path):
     if path.endswith(_MAC_FRAMEWORK_SUFFIX):
         path = path[:-_MAC_FRAMEWORK_SUFFIX_LEN].strip()
 
-    # We're on UNIX, so the path delimiter is '/'.
-    repo_root = str(repo_ctx.path(".")) + "/"
-    path = str(repo_ctx.path(path))
-    if path.startswith(repo_root):
-        return path[len(repo_root):]
+    # Handle both UNIX and Windows path delimiters
+    if "windows" in repo_ctx.os.name:
+        repo_root = str(repo_ctx.path(".")) + "\\"
+        path = str(repo_ctx.path(path))
+        if path.startswith(repo_root):
+            return path[len(repo_root):]
+    else:
+        # We're on UNIX, so the path delimiter is '/'.
+        repo_root = str(repo_ctx.path(".")) + "/"
+        path = str(repo_ctx.path(path))
+        if path.startswith(repo_root):
+            return path[len(repo_root):]
     return path

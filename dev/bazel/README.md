@@ -15,6 +15,15 @@
 * limitations under the License.
 *******************************************************************************/-->
 # Bazel Guide
+
+## Supported Platforms
+oneDAL Bazel build system supports the following platforms:
+- **Linux** (x86_64) - Full support with GCC, Intel C++, and Intel DPC++ compilers
+- **Windows** (x86_64) - Full support with MSVC, Intel C++, and Intel DPC++ compilers
+- **macOS** (x86_64) - Limited support (Linux toolchain used)
+
+For Windows-specific instructions, see [Windows Bazel Guide](README_WINDOWS.md).
+
 ## Install Bazel on Linux
 1. Download Bazelisk
    ```sh
@@ -44,15 +53,35 @@
    ```
 
 ### Compiler choice
-Be default our build system configures Bazel to use Intel(R) C++ Compiler
+By default our build system configures Bazel to use Intel(R) C++ Compiler
 in case of normal C++ code and Intel(R) oneAPI DPC++ Compiler in case of
 DPC++. If Intel(R) C++ Compiler is not available in the `$PATH`, Bazel
-tries to find default compiler for specific OS, e.g., GCC for Linux.
+tries to find default compiler for specific OS:
+- **Linux**: GCC
+- **Windows**: Microsoft Visual C++ (MSVC)
+- **macOS**: Clang
 
 The C++ compiler can be forcibly changed using environment variable `CC`.
 ```sh
+# Linux/macOS
 export CC=gcc
 bazel <bazel-command> ... # Will use GCC for normal C++ code
+
+# Windows
+set CC=icx
+bazel <bazel-command> ... # Will use Intel C++ for normal C++ code
+```
+
+For Windows, you can also use predefined configurations:
+```cmd
+# Use MSVC
+bazel build <target> --config=win-msvc
+
+# Use Intel C++
+bazel build <target> --config=win-icx
+
+# Use Intel DPC++
+bazel build <target> --config=win-icpx
 ```
 
 ## Common Bazel commands

@@ -37,6 +37,27 @@ lnx_cc_flags = {
     "pedantic": lnx_cc_pedantic_flags,
 }
 
+win_cc_common_flags = [
+    "/W3",
+    "/WX",
+    "/EHsc",
+    "/bigobj",
+]
+
+win_cc_pedantic_flags = [
+    "/Wall",
+    "/wd4514",  # unreferenced inline function has been removed
+    "/wd4710",  # function not inlined
+    "/wd4711",  # function selected for automatic inline expansion
+    "/wd4820",  # padding added after data member
+    "/wd5045",  # Spectre mitigation
+]
+
+win_cc_flags = {
+    "common": win_cc_common_flags,
+    "pedantic": win_cc_pedantic_flags,
+}
+
 def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
     _check_flag_category(category)
     if os_id == "lnx":
@@ -63,6 +84,34 @@ def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
         if compiler_id not in ["icx", "icpx"]:
             flags = flags + ["-fno-strict-overflow"]
         return flags
+    elif os_id == "win":
+        flags = win_cc_flags[category]
+        if compiler_id == "cl":
+            if category == "common":
+                flags = flags + [
+                    "/MD",  # Multi-threaded DLL runtime
+                    "/O2",  # Optimize for speed
+                    "/Oi",  # Enable intrinsic functions
+                    "/Ot",  # Favor fast code
+                    "/Oy",  # Frame pointer omission
+                    "/GL",  # Whole program optimization
+                ]
+        elif compiler_id == "icx":
+            if category == "common":
+                flags = flags + [
+                    "/Qopenmp-simd",
+                    "/O3",
+                    "/MD",
+                ]
+        elif compiler_id == "icpx":
+            if category == "common":
+                flags = flags + [
+                    "/fsycl",
+                    "/Qopenmp-simd",
+                    "/O3",
+                    "/MD",
+                ]
+        return flags
     fail("Unsupported OS")
 
 def get_cpu_flags(arch_id, os_id, compiler_id):
@@ -81,10 +130,21 @@ def get_cpu_flags(arch_id, os_id, compiler_id):
         avx2 = ["-xCORE-AVX2"]
         avx512 = ["-xCORE-AVX512", "-qopt-zmm-usage=high"]
     elif compiler_id in ["icx", "icpx"]:
-        sse2 = ["-march=nocona"]
-        sse42 = ["-march=nehalem"]
-        avx2 = ["-march=haswell"]
-        avx512 = ["-march=skx"]
+        if os_id == "win":
+            sse2 = ["/arch:SSE2"]
+            sse42 = ["/arch:SSE2"]  # Windows doesn't have specific SSE4.2 flag
+            avx2 = ["/arch:AVX2"]
+            avx512 = ["/arch:AVX512"]
+        else:
+            sse2 = ["-march=nocona"]
+            sse42 = ["-march=nehalem"]
+            avx2 = ["-march=haswell"]
+            avx512 = ["-march=skx"]
+    elif compiler_id == "cl":
+        sse2 = ["/arch:SSE2"]
+        sse42 = ["/arch:SSE2"]  # MSVC doesn't have specific SSE4.2 flag
+        avx2 = ["/arch:AVX2"]
+        avx512 = ["/arch:AVX512"]
     return {
         "sse2": sse2,
         "sse42": sse42,

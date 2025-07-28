@@ -14,13 +14,18 @@
 # limitations under the License.
 #===============================================================================
 
-package(default_visibility = ["//visibility:public"])
-
-toolchain_type(name = "extra")
-
-exports_files([
-    "cc_toolchain_lnx.tpl.BUILD",
-    "cc_toolchain_win.tpl.BUILD",
-    "extra_toolchian_lnx.tpl.BUILD",
-    "extra_toolchain_win.tpl.BUILD",
-])
+def configure_extra_toolchain_win(repo_ctx, reqs):
+    repo_ctx.template(
+        "BUILD",
+        Label("@onedal//dev/bazel/toolchains:extra_toolchain_win.tpl.BUILD"),
+        substitutions = {
+            "%{toolchain_identifier}": "win-{}-{}-{}".format(
+                reqs.target_arch_id, reqs.compiler_id, reqs.compiler_version
+            ),
+            "%{target_arch_id}": reqs.target_arch_id,
+            "%{os_id}": reqs.os_id,
+            "%{compiler_id}": reqs.compiler_id,
+            "%{compiler_version}": reqs.compiler_version,
+        },
+        executable = False,
+    )

@@ -14,7 +14,7 @@
 # limitations under the License.
 #===============================================================================
 
-def configure_extra_toolchain_lnx(repo_ctx, compiler_id):
+def configure_extra_toolchain_lnx(repo_ctx, reqs):
     repo_ctx.template(
         "patch_daal_kernel_defines.sh",
         Label("@onedal//dev/bazel/toolchains/tools:patch_daal_kernel_defines.sh"),
