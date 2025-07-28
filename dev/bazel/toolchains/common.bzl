@@ -69,13 +69,28 @@ def detect_compiler(repo_ctx, os_id):
     elif "icc" in compiler_path:
         return "icc"
 
+def escape_string_for_starlark(s):
+    """Escape a string for safe use in Starlark BUILD files, especially Windows paths."""
+    if not s:
+        return '""'
+    # Escape backslashes first, then quotes
+    escaped = s.replace("\\", "\\\\").replace('"', '\\"')
+    return '"{}"'.format(escaped)
+
+def get_starlark_list_safe(lst):
+    """Convert a list to Starlark list format with proper escaping for Windows paths."""
+    if not lst:
+        return ""
+    escaped_items = [escape_string_for_starlark(item) for item in lst]
+    return ",\n        ".join(escaped_items)
+
 def get_starlark_dict(dictionary):
     entries = [ "\"{}\":\"{}\"".format(k, v) for k, v in dictionary.items() ]
     return ",\n    ".join(entries)
 
 def get_starlark_list_dict(dictionary):
-    entries = [ "\"{}\": [{}]".format(k, get_starlark_list(v)) for k, v in dictionary.items() ]
-    return ",\n    ".join(entries)
+    entries = [ "\"{}\": [{}]".format(k, get_starlark_list_safe(v)) for k, v in dictionary.items() ]
+    return ",\n        ".join(entries)
 
 def get_cxx_inc_directories(repo_ctx, cc, lang_flag, additional_flags = []):
     """Compute the list of default C++ include directories."""

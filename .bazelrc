@@ -107,7 +107,6 @@ test:dpc-private \
 # Configuration: 'win'
 # Build configuration for Windows
 build:win \
-    --platforms=@platforms//os:windows \
     --incompatible_enable_cc_toolchain_resolution \
     --cpu=x64_windows \
     --host_cpu=x64_windows
