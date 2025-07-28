@@ -19,10 +19,16 @@ load(
     "ACTION_NAMES",
 )
 load(
+    "@rules_cc//cc:defs.bzl",
+    "CcToolchainConfigInfo",
+)
+load(
     "@rules_cc//cc:cc_toolchain_config_lib.bzl",
+    "action_config",
     "feature",
     "flag_group",
     "flag_set",
+    "tool",
     "tool_path",
     "variable_with_value",
     "with_feature_set",
@@ -35,6 +41,66 @@ def _impl(ctx):
             path = path,
         )
         for name, path in ctx.attr.tool_paths.items()
+    ]
+
+    # Action configurations
+    action_configs = [
+        action_config(
+            action_name = ACTION_NAMES.cpp_link_static_library,
+            enabled = True,
+            tools = [
+                tool(path = ctx.attr.tool_paths.get("ar", "lib.exe")),
+            ],
+        ),
+        action_config(
+            action_name = ACTION_NAMES.c_compile,
+            enabled = True,
+            tools = [
+                tool(path = ctx.attr.tool_paths.get("gcc", "cl.exe")),
+            ],
+        ),
+        action_config(
+            action_name = ACTION_NAMES.cpp_compile,
+            enabled = True,
+            tools = [
+                tool(path = ctx.attr.tool_paths.get("gcc", "cl.exe")),
+            ],
+        ),
+        action_config(
+            action_name = ACTION_NAMES.cpp_link_executable,
+            enabled = True,
+            tools = [
+                tool(path = ctx.attr.tool_paths.get("gcc", "link.exe")),
+            ],
+        ),
+        action_config(
+            action_name = ACTION_NAMES.cpp_link_dynamic_library,
+            enabled = True,
+            tools = [
+                tool(path = ctx.attr.tool_paths.get("gcc", "link.exe")),
+            ],
+        ),
+        action_config(
+            action_name = ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+            enabled = True,
+            tools = [
+                tool(path = ctx.attr.tool_paths.get("gcc", "link.exe")),
+            ],
+        ),
+        action_config(
+            action_name = ACTION_NAMES.assemble,
+            enabled = True,
+            tools = [
+                tool(path = ctx.attr.tool_paths.get("gcc", "ml64.exe")),
+            ],
+        ),
+        action_config(
+            action_name = ACTION_NAMES.preprocess_assemble,
+            enabled = True,
+            tools = [
+                tool(path = ctx.attr.tool_paths.get("gcc", "cl.exe")),
+            ],
+        ),
     ]
 
     features = [
@@ -178,6 +244,32 @@ def _impl(ctx):
             name = "parse_showincludes",
             enabled = True,
         ),
+        feature(
+            name = "supports_pic",
+            enabled = True,
+        ),
+        feature(
+            name = "pic",
+            enabled = True,
+        ),
+        feature(
+            name = "static_linking_mode",
+            enabled = True,
+            flag_sets = [
+                flag_set(
+                    actions = [ACTION_NAMES.cpp_link_static_library],
+                    flag_groups = [
+                        flag_group(
+                            flags = ["/NOLOGO", "/OUT:%{output_execpath}"],
+                        ),
+                        flag_group(
+                            iterate_over = "libraries_to_link",
+                            flags = ["%{libraries_to_link.name}"],
+                        ),
+                    ],
+                ),
+            ],
+        ),
     ]
 
     if ctx.attr.coverage_compile_flags or ctx.attr.coverage_link_flags:
@@ -228,6 +320,7 @@ def _impl(ctx):
     return cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
         features = features,
+        action_configs = action_configs,
         cxx_builtin_include_directories = ctx.attr.builtin_include_directories,
         toolchain_identifier = ctx.attr.toolchain_identifier,
         host_system_name = ctx.attr.host_system_name,
